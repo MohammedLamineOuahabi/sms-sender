@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Batch Sender</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f5f7fa; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1, h2 { color: #2c3e50; margin-top: 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="file"], textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        textarea { height: 100px; resize: vertical; }
+        .controls { display: flex; gap: 10px; margin-bottom: 10px; }
+        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; flex: 1; }
+        button:hover { background-color: #2980b9; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        #pauseBtn { background-color: #e67e22; }
+        #pauseBtn:hover { background-color: #d35400; }
+        #resumeBtn { background-color: #27ae60; }
+        #resumeBtn:hover { background-color: #2ecc71; display: none; }
+        
+        .status-panel { display: flex; gap: 15px; margin-top: 15px; }
+        .stat-box { flex: 1; padding: 15px; background: #ecf0f1; border-radius: 4px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #2c3e50; }
+        .progress-bar { width: 100%; background-color: #ecf0f1; border-radius: 4px; margin-top: 15px; overflow: hidden; height: 20px; position: relative;}
+        .progress-fill { height: 100%; background-color: #3498db; width: 0%; transition: width 0.3s ease; }
+        #currentStatus { font-weight: bold; padding: 5px 10px; border-radius: 4px; background: #ecf0f1; display: inline-block; }
+
+        /* Table styles */
+        .table-container { max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; position: sticky; top: 0; }
+        tr.processing { background-color: #fff3cd; }
+        tr.success { background-color: #d4edda; }
+        tr.failed { background-color: #f8d7da; }
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .badge.pending { background: #e2e3e5; color: #383d41; }
+        .badge.processing { background: #ffeeba; color: #856404; }
+        .badge.success { background: #c3e6cb; color: #155724; }
+        .badge.failed { background: #f5c6cb; color: #721c24; }
+    </style>
+</head>
+<body>
+
+    <h1>SMS Batch Sender</h1>
+
+    <div class="card">
+        <h2>1. Load Campaign</h2>
+        <form id="campaignForm">
+            <label for="csvFile">Upload Contacts (CSV)</label>
+            <input type="file" id="csvFile" name="csvFile" accept=".csv">
+
+            <label for="message">Message Template (AR/FR)</label>
+            <textarea id="message" name="message" placeholder="Type your message here... Note: Random spaces are automatically appended."></textarea>
+
+            <div class="controls">
+                <button type="submit" id="loadBtn">Load Numbers</button>
+            </div>
+            <p style="font-size: 0.85em; color: #7f8c8d; margin-top: 5px;">Loading a new campaign will clear the current list in memory.</p>
+        </form>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>2. Progress & Control</h2>
+            <span id="currentStatus">IDLE</span>
+        </div>
+
+        <div class="controls" style="margin-top: 15px;">
+            <button type="button" id="startBtn" disabled style="background-color: #9b59b6;">Start Sending</button>
+            <button type="button" id="pauseBtn" disabled>Pause Sending</button>
+            <button type="button" id="resumeBtn" disabled style="display: none;">Resume Sending</button>
+            <button type="button" id="clearBtn" disabled style="background-color: #e74c3c;">Clear List</button>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <div class="status-panel">
+            <div class="stat-box">
+                <div>Total</div>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+            <div class="stat-box">
+                <div>Pending</div>
+                <div class="stat-value" id="statPending" style="color: #f39c12;">0</div>
+            </div>
+            <div class="stat-box">
+                <div>Sent</div>
+                <div class="stat-value" id="statSent" style="color: #2ecc71;">0</div>
+            </div>
+            <div class="stat-box">
+                <div>Failed</div>
+                <div class="stat-value" id="statFailed" style="color: #e74c3c;">0</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="numbersTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
