@@ -1,8 +1,8 @@
 {
-  "name": "sms",
+  "name": "sms-batch-sender",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A professional Node.js SMS gateway and batch sender for Android/Termux.",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
